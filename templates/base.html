@@ -8,7 +8,9 @@
 </head>
 <body>
     {% include 'inc/navbar.html' %}
-    {% include 'inc/massages.html' %}
-    {% block content %}{% endblock %}
+    <div class="jumbotron">
+        {% include 'inc/messages.html' %}
+        {% block content %}{% endblock %}
+    </div>
 </body>
 </html>
