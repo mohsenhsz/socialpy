@@ -1,10 +1,20 @@
 {% extends 'base.html' %}
 {% block content %}
     <div class="form-group col-md-3">
-        <form action="" method="POST">
+        <form action="" method="POST" novalidate>
             {% csrf_token %}
-            {{ form.as_p }}
-            <button class="btn btn-primary">Log in</button>
+            {{form.non_field_errors }}
+            <div class="fieldWrapper"></br>
+                {{ form.username.errors }}
+                <label for="{{ form.username.id_for_label }}">Username</label>
+                {{ form.username }}
+            </div>
+            <div class="fieldwrapper"></br>
+                {{ form.password.errors }}
+                <label for="{{ form.password.id_for_label }}">Password</label>
+                {{ form.password }}
+            </div></br>
+            <button class="btn btn-primary" type="submit" >Log in</button>
         </form>
 </div>
 {% endblock %}

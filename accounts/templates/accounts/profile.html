@@ -1,0 +1,15 @@
+{% extends 'base.html' %}
+{% block content %}
+
+    <h4 class="text-center">{{ user.username|capfirst }}</h4>
+    <p class="text-center">{{ user.profile.bio }}</a></p></br></br>
+    {% for post in posts %}
+        <div class="card">
+            <div class="card-body">
+                <p class="article-title"><a href="{{ post.get_absolute_url }}">{{ post.content }}</a></p>
+            </div>
+        </div></br>
+    {% empty %}
+        <p>This user has no posts </p>
+    {% endfor %}
+{% endblock %}
