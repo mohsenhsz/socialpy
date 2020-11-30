@@ -4,6 +4,7 @@ from .forms import UserLoginForm, UserRegisterationForm
 from django.contrib.auth import authenticate, login, logout
 from django.contrib import messages
 from core.models import Post
+from django.contrib.auth.decorators import login_required
 
 
 
@@ -41,13 +42,13 @@ def UserLogin(request):
         form = UserLoginForm()
     return render(request, 'accounts/login.html', {'form':form})
 
-
+@login_required(redirect_field_name='login')
 def UserLogout(request):
     logout(request)
     messages.success(request, f'You logged out successfully', 'success')
     return redirect('index')
 
-
+@login_required(redirect_field_name='login')
 def UserProfile(request, user_id):
     user = get_object_or_404(User, id=user_id)
     posts = Post.objects.filter(user=user)
