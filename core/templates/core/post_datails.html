@@ -1,5 +1,9 @@
 {% extends 'base.html' %}
 {% block content %}
+    {% if user.is_authenticated and post.user.id == request.user.id %}
+        <a href="{% url 'delete_post' post.user.id post.id %}">Delete Post</a>
+        <a href="{% url 'edit_post' post.user.id post.id %}">Edit Post</a>
+        {% endif %}
     <p>{{ post.user }} | {{ post.publish_date|date }}</p>
     <p>{{ post.content }}</p>
 {% endblock %}

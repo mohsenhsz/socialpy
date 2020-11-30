@@ -52,4 +52,8 @@ def UserLogout(request):
 def UserProfile(request, user_id):
     user = get_object_or_404(User, id=user_id)
     posts = Post.objects.filter(user=user)
-    return render(request, 'accounts/profile.html', {'user':user, 'posts':posts})
+    self_profile = False
+    if request.user == user:
+        self_profile = True
+    context = {'user':user, 'posts':posts, 'self_profile':self_profile}
+    return render(request, 'accounts/profile.html', context)

@@ -1,6 +1,8 @@
 {% extends 'base.html' %}
 {% block content %}
-
+    {% if self_profile %}
+        <a href="{% url 'create_post' user.id %}"><p>Create Post</p></a>
+    {% endif %}
     <h4 class="text-center">{{ user.username|capfirst }}</h4>
     <p class="text-center">{{ user.profile.bio }}</a></p></br></br>
     {% for post in posts %}
