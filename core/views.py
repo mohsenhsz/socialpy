@@ -15,8 +15,9 @@ def PostDetails(request, year, month, day, slug):
                              publish_date__month=month, publish_date__day=day, slug=slug)
     return render(request, 'core/post_datails.html', {'post':post})
 
-@login_required(redirect_field_name='login')
+@login_required
 def CreatePost(request, user_id):
+    """ next is the url that the user requested before logging in  """
     if request.user.id == user_id:
         if request.method == 'POST':
             form = CreatePostForm(request.POST)
@@ -35,7 +36,7 @@ def CreatePost(request, user_id):
     else:
         return redirect('index')
 
-@login_required(redirect_field_name='login')
+@login_required
 def DeletePost(request, user_id, post_id):
     if request.user.id == user_id:
         post = Post.objects.filter(pk=post_id)
@@ -45,7 +46,7 @@ def DeletePost(request, user_id, post_id):
     else:
         return redirect('profile', request.user.id)
 
-@login_required(redirect_field_name='login')
+@login_required()
 def EditPost(request, user_id, post_id):
     if request.user.id == user_id:
         post = get_object_or_404(Post, pk=post_id)
@@ -55,7 +56,8 @@ def EditPost(request, user_id, post_id):
                 post.slug = slugify(form.cleaned_data['content'][:30])
                 form.save()
                 messages.success(request, 'Your post edited successfully', 'success')
-                return redirect('profile', user_id)
+                return redirect('post_details', post.publish_date.year, post.publish_date.month,
+                                 post.publish_date.day, post.slug)
         else:
             form = EditPostForm(instance=post)
             return render(request, 'core/edit_post.html', {'form':form})

@@ -27,6 +27,7 @@ def UserRegister(request):
 
 
 def UserLogin(request):
+    next = request.GET.get('next')
     if request.method == 'POST':
         form = UserLoginForm(request.POST)
         if form.is_valid():
@@ -35,6 +36,8 @@ def UserLogin(request):
             if user is not None:
                 login(request,user)
                 messages.success(request, f'You logged in successfully', 'success')
+                if next:
+                    return redirect(next)
                 return redirect('index')
             else:
                 messages.error(request, f'username or password is wrong', 'danger')
@@ -42,13 +45,13 @@ def UserLogin(request):
         form = UserLoginForm()
     return render(request, 'accounts/login.html', {'form':form})
 
-@login_required(redirect_field_name='login')
+@login_required
 def UserLogout(request):
     logout(request)
     messages.success(request, f'You logged out successfully', 'success')
     return redirect('index')
 
-@login_required(redirect_field_name='login')
+@login_required
 def UserProfile(request, user_id):
     user = get_object_or_404(User, id=user_id)
     posts = Post.objects.filter(user=user)
