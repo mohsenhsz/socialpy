@@ -1,9 +1,56 @@
 {% extends 'base.html' %}
 {% block content %}
+
+    <!-- Edit and Delete post link -->
     {% if user.is_authenticated and post.user.id == request.user.id %}
         <a href="{% url 'delete_post' post.user.id post.id %}">Delete Post</a>
         <a href="{% url 'edit_post' post.user.id post.id %}">Edit Post</a>
         {% endif %}
-    <p>{{ post.user }} | {{ post.publish_date|date }}</p>
-    <p>{{ post.content }}</p>
+
+
+        <!-- Show post details -->
+        <p>{{ post.user }} | {{ post.publish_date|date }}</p>
+        <p>{{ post.content }}</p><hr>
+
+
+        <!-- comment form -->
+        <form action="" method="POST" novalidate class="col-md-6">
+            {% csrf_token %}
+            <p>{{ form.as_p }}</p>
+            {% if user.is_authenticated %}
+            <button class="btn btn-primary">Send</button>
+            {% else %}
+            <p><button class="btn btn-primary" disabled type="submit">Send</button> Login required</p>
+            {% endif %}
+        </form><br>
+
+
+        <!-- Total number of comments -->
+        {% with total=comments.count %}
+            <p>This post has {{ total }} comment{{ total|pluralize }}</p>
+        {% endwith %}
+
+
+        <!-- Show comments -->
+        {% for comment in comments %}
+            <div class="card bg-dark text-white col-md-8">
+                <p class="card-header">{{ comment.user }}</p>
+                <p class="card-body">{{ comment.body }}</p>
+
+
+                <!-- reply comment -->
+                {% if user.is_authenticated %}
+                    <form action="{% url 'reply_comment' post.id comment.id %}" method="POST">
+                        {% csrf_token %}
+                        {{ reply_form.as_p }}
+                        <button class="btn btn-primary">Send</button>
+                    </form>
+                {% endif %}
+                {% for reply in comment.rcomment.all %}
+                    <p class="bg-primary text-white p-3 m-5">{{reply.user}} <br>{{ reply.body }} </p>
+                {% endfor %}
+            </div><br>
+        {% empty %}
+            <p>This post has no comments</p>
+        {% endfor %}
 {% endblock %}
