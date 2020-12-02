@@ -5,7 +5,7 @@
     {% if user.is_authenticated and post.user.id == request.user.id %}
         <a href="{% url 'delete_post' post.user.id post.id %}">Delete Post</a>
         <a href="{% url 'edit_post' post.user.id post.id %}">Edit Post</a>
-        {% endif %}
+    {% endif %}
 
 
         <!-- Show post details -->
@@ -34,7 +34,7 @@
         <!-- Show comments -->
         {% for comment in comments %}
             <div class="card bg-dark text-white col-md-8">
-                <p class="card-header">{{ comment.user }}</p>
+                <p class="card-header">{{ comment.user }} <a href="#">reply</a></p>
                 <p class="card-body">{{ comment.body }}</p>
 
 
@@ -46,11 +46,17 @@
                         <button class="btn btn-primary">Send</button>
                     </form>
                 {% endif %}
+
+
+                <!-- reply comments -->
                 {% for reply in comment.rcomment.all %}
                     <p class="bg-primary text-white p-3 m-5">{{reply.user}} <br>{{ reply.body }} </p>
                 {% endfor %}
             </div><br>
+
+        
         {% empty %}
             <p>This post has no comments</p>
         {% endfor %}
+
 {% endblock %}

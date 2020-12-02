@@ -1,5 +1,6 @@
 from django import forms
 from django.contrib.auth.models import User
+from .models import Profile
 
 
 """ Customize form error masseges """
@@ -51,3 +52,14 @@ class UserLoginForm(forms.Form):
                                 error_messages=messages, max_length=30, widget=forms.PasswordInput(
                                 attrs={'class':'form-control'})
                                )
+
+
+class EditProfileForm(forms.ModelForm):
+    email = forms.EmailField(widget=forms.EmailInput(attrs={'class':'form-control'}))
+    class Meta:
+        model = Profile
+        fields = ('bio', 'age')
+        widgets = {
+            'bio': forms.Textarea(attrs={'class':'form-control'}),
+            'age': forms.NumberInput(attrs={'class':'form-control'})
+        }

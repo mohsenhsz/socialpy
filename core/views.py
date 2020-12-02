@@ -47,7 +47,7 @@ def CreatePost(request, user_id):
             form = CreatePostForm()
         return render(request, 'core/create_post.html', {'form':form})
     else:
-        return redirect('index')
+        return redirect('profile', request.user.id)
 
 @login_required
 def DeletePost(request, user_id, post_id):
@@ -77,6 +77,7 @@ def EditPost(request, user_id, post_id):
     else:
         return redirect('index')
 
+
 @login_required
 def ReplyComment(request, post_id, comment_id):
     post = get_object_or_404(Post, id=post_id)
@@ -91,5 +92,5 @@ def ReplyComment(request, post_id, comment_id):
             new_reply.is_reply = True
             new_reply.save()
             messages.success(request, 'Your comment submitted successfully', 'success')
-            return redirect('post_details', post.id, post.publish_date.year, post.publish_date.month,
-                             post.publish_date.day, post.slug)
+    return redirect('post_details', post.id, post.publish_date.year, post.publish_date.month,
+                        post.publish_date.day, post.slug)
