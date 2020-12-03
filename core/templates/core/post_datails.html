@@ -38,7 +38,7 @@
                 <p class="card-body">{{ comment.body }}</p>
 
 
-                <!-- reply comment -->
+                <!-- reply comment form-->
                 {% if user.is_authenticated %}
                     <form action="{% url 'reply_comment' post.id comment.id %}" method="POST">
                         {% csrf_token %}
@@ -48,13 +48,12 @@
                 {% endif %}
 
 
-                <!-- reply comments -->
+                <!-- show reply comments -->
                 {% for reply in comment.rcomment.all %}
                     <p class="bg-primary text-white p-3 m-5">{{reply.user}} <br>{{ reply.body }} </p>
                 {% endfor %}
             </div><br>
 
-        
         {% empty %}
             <p>This post has no comments</p>
         {% endfor %}

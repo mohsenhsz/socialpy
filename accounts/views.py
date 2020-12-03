@@ -4,9 +4,9 @@ from .forms import UserLoginForm, UserRegisterationForm, EditProfileForm
 from django.contrib.auth import authenticate, login, logout
 from django.contrib import messages
 from core.models import Post
-from accounts.models import Profile
+from accounts.models import Profile, Relation
 from django.contrib.auth.decorators import login_required
-
+from django.http import JsonResponse
 
 
 def UserRegister(request):
@@ -23,7 +23,7 @@ def UserRegister(request):
             login(request, user)
             return redirect('index')
     else:
-        form = UserRegisterationForm
+        form = UserRegisterationForm()
     return render(request, 'accounts/register.html', {'form':form})
 
 
@@ -61,7 +61,11 @@ def UserProfile(request, user_id):
     self_profile = False
     if request.user == user:
         self_profile = True
-    context = {'user':user, 'posts':posts, 'self_profile':self_profile}
+    is_following = False
+    is_relation = Relation.objects.filter(from_user=request.user, to_user=user)
+    if is_relation.exists():
+        is_following = True
+    context = {'user':user, 'posts':posts, 'self_profile':self_profile, 'is_following':is_following}
     return render(request, 'accounts/profile.html', context)
 
 
@@ -82,3 +86,26 @@ def EditProfile(request, user_id):
         return render(request, 'accounts/edit_profile.html', {'form':form})
     else:
         return redirect('profile', request.user.id)
+
+@login_required
+def Follow(request):
+    if request.method == 'POST':
+        user_id = request.POST['user_id']
+        following_user = get_object_or_404(User, pk=user_id)
+        relation = Relation.objects.filter(from_user=request.user, to_user=following_user)
+        if relation.exists():
+            return JsonResponse({'status':'exsist'})
+        else:
+            Relation(from_user=request.user, to_user=following_user).save()
+            return JsonResponse({'status':'ok'})
+@login_required
+def Unfollow(request):
+    if request.method == 'POST':
+        user_id = request.POST['user_id']
+        unfollowing_user = get_object_or_404(User, pk=user_id)
+        relation = Relation.objects.filter(from_user=request.user, to_user=unfollowing_user)
+        if relation.exists():
+            relation.delete()
+            return JsonResponse({'status':'ok'})
+        else:
+            return JsonResponse({'status':'notexists'})

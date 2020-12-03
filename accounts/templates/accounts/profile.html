@@ -1,11 +1,27 @@
 {% extends 'base.html' %}
+{% load static %}
+{% block js_files %}
+<script src="{% static 'accounts/js/script.js' %}"></script>
+{% endblock %}
+
 {% block content %}
+
     {% if self_profile %}
-        <a href="{% url 'create_post' user.id %}"><p>Create Post</p></a>
-        <a href="{% url 'edit_profile' user.id %}">Edit Profile</a>
+    <a href="{% url 'create_post' user.id %}">Create Post </a>
+    <a href="{% url 'edit_profile' user.id %}">Edit Profile</a>
     {% endif %}
     <h4 class="text-center">{{ user.username|capfirst }}</h4>
-    <p class="text-center">{{ user.profile.bio }}</a></p></br></br>
+    <p class="text-center">{{ user.profile.bio }}</a></p>
+
+    <!-- Follow and unfollow -->
+    {% if request.user.id != user.id and not is_following %}
+        <button id="following_btn" data-id="{{ user.id }}" style="display:block" class="btn btn-primary text-center mx-auto">follow</button>
+    {% elif request.user.id != user.id and is_following %}
+        <button id="following_btn" data-id="{{ user.id }}" style="display:block" class="btn btn-warning text-center mx-auto">unfollow</button>
+    {% endif %}
+    <br><br>
+    
+    <!-- User's posts -->
     {% for post in posts %}
         <div class="card">
             <div class="card-body">
@@ -15,4 +31,5 @@
     {% empty %}
         <p>This user has no posts </p>
     {% endfor %}
+
 {% endblock %}

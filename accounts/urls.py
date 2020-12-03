@@ -8,4 +8,6 @@ urlpatterns = [
     path('register/', views.UserRegister, name='register'),
     path('profile/<int:user_id>/', views.UserProfile, name='profile'),
     path('edit_profile/<int:user_id>/', views.EditProfile, name='edit_profile'),
+    path('follow/', views.Follow, name='follow'),
+    path('unfollow/', views.Unfollow, name='unfollow'),
 ]
