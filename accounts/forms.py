@@ -63,3 +63,16 @@ class EditProfileForm(forms.ModelForm):
             'bio': forms.Textarea(attrs={'class':'form-control'}),
             'age': forms.NumberInput(attrs={'class':'form-control'})
         }
+
+
+class PhoneLoginForm(forms.Form):
+    phone = forms.IntegerField()
+
+    def clean_phone(self):
+        phone = Profile.objects.filter(mobile=self.cleaned_data['phone'])
+        if not phone.exists():
+            raise forms.ValidationError('This phone number does not exists')
+        return self.cleaned_data['phone']
+
+class VerifyPhoneForm(forms.Form):
+    code = forms.IntegerField()

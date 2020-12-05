@@ -1,12 +1,14 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.models import User
-from .forms import UserLoginForm, UserRegisterationForm, EditProfileForm
+from .forms import UserLoginForm, UserRegisterationForm, EditProfileForm, PhoneLoginForm, VerifyPhoneForm
 from django.contrib.auth import authenticate, login, logout
 from django.contrib import messages
 from core.models import Post
 from accounts.models import Profile, Relation
 from django.contrib.auth.decorators import login_required
 from django.http import JsonResponse
+from kavenegar import *
+from random import randint
 
 
 def UserRegister(request):
@@ -109,3 +111,38 @@ def Unfollow(request):
             return JsonResponse({'status':'ok'})
         else:
             return JsonResponse({'status':'notexists'})
+
+
+def PhoneLogin(request):
+    if request.method == "POST":
+        form = PhoneLoginForm(request.POST)
+        if form.is_valid():
+            global phone, token
+            phone = f"0{form.cleaned_data['phone']}"
+            profile = get_object_or_404(Profile, mobile=phone)
+            user = User.objects.filter(profile__id=profile.id)
+            token = randint(1000,9999)
+            api = KavenegarAPI('55334B346B7049394D4C4B742F4348616733656D5165645A6669747A344B734478707257694977326763493D')
+            params = { 'sender' : '1000596446', 'receptor': phone, 'message': token }
+            api.sms_send(params)
+            return redirect('verify_phone')
+    else:
+        form = PhoneLoginForm()
+    return render(request, 'accounts/phone_login.html', {'form':form})
+
+
+def VerifyPhone(request):
+    if request.method == 'POST':
+        form = VerifyPhoneForm(request.POST)
+        if form.is_valid():
+            if token == form.cleaned_data['code']:
+                profile = get_object_or_404(Profile, mobile=phone)
+                user = get_object_or_404(User, profile__id=profile.id)
+                login(request, user)
+                messages.success(request, 'You loged in successfully', 'success')
+                return redirect('index')
+            else:
+                messages.error(request, 'Your code is wrong!', 'Warning')
+    else:
+        form = VerifyPhoneForm()
+    return render(request, 'accounts/verify_phone.html', {'form':form})
