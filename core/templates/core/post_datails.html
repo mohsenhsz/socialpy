@@ -8,54 +8,68 @@
     {% endif %}
 
 
-        <!-- Show post details -->
-        <p>{{ post.user }} | {{ post.publish_date|date }}</p>
-        <p>{{ post.content }}</p><hr>
+    <!-- Show post details -->
+    <p>{{ post.user }} | {{ post.publish_date|date }}</p>
+    <p>{{ post.content }}</p><hr>
 
 
-        <!-- comment form -->
-        <form action="" method="POST" novalidate class="col-md-6">
-            {% csrf_token %}
-            <p>{{ form.as_p }}</p>
-            {% if user.is_authenticated %}
-            <button class="btn btn-primary">Send</button>
-            {% else %}
-            <p><button class="btn btn-primary" disabled type="submit">Send</button> Login required</p>
-            {% endif %}
-        </form><br>
+    <!-- Like post -->
+    <p>{{ post.likes_count }} like{{ post.likes_count|pluralize }}</p>
+    {% if user.is_authenticated %}
+        {% if can_like %}
+            <a href="{% url 'like' post.id %}" class="btn btn-primary col-md-2 ">Like</a>
+        {% else %}
+            <a href="{% url 'dislike' post.id %}" class="btn btn-primary col-md-2 ">Dislike</a>
+        {% endif %}
+    {% else %}
+    <a href="{% url 'like' post.id %}" class="btn btn-primary col-md-2 disabled ">Like (Login required)</a>
+    {% endif %}
+    <br><br>
+
+    <!-- comment form -->
+    <h4>Comments</h4>
+    <form action="" method="POST" novalidate class="col-md-6">
+        {% csrf_token %}
+        {{ form.as_p }}
+        {% if user.is_authenticated %}
+        <button class="btn btn-primary">Send</button>
+        {% else %}
+        <p><button class="btn btn-primary" disabled type="submit">Send</button> Login required</p>
+        {% endif %}
+    </form><br>
 
 
-        <!-- Total number of comments -->
-        {% with total=comments.count %}
-            <p>This post has {{ total }} comment{{ total|pluralize }}</p>
-        {% endwith %}
+    <!-- Total number of comments -->
+    {% with total=comments.count %}
+        <p>This post has {{ total }} comment{{ total|pluralize }}</p>
+    {% endwith %}
 
 
         <!-- Show comments -->
-        {% for comment in comments %}
-            <div class="card bg-dark text-white col-md-8">
-                <p class="card-header">{{ comment.user }} <a href="#">reply</a></p>
-                <p class="card-body">{{ comment.body }}</p>
+    {% for comment in comments %}
+        <div class="card bg-dark text-white col-md-8">
+            <p class="card-header">{{ comment.user }} <a href="#">reply</a></p>
+            <p class="card-body">{{ comment.body }}</p>
 
 
-                <!-- reply comment form-->
-                {% if user.is_authenticated %}
-                    <form action="{% url 'reply_comment' post.id comment.id %}" method="POST">
-                        {% csrf_token %}
-                        {{ reply_form.as_p }}
-                        <button class="btn btn-primary">Send</button>
-                    </form>
-                {% endif %}
+            <!-- reply comment form-->
+            {% if user.is_authenticated %}
+                <form action="{% url 'reply_comment' post.id comment.id %}" method="POST">
+                    {% csrf_token %}
+                    {{ reply_form.as_p }}
+                    <button class="btn btn-primary">Send</button>
+                </form>
+            {% endif %}
 
 
-                <!-- show reply comments -->
-                {% for reply in comment.rcomment.all %}
-                    <p class="bg-primary text-white p-3 m-5">{{reply.user}} <br>{{ reply.body }} </p>
-                {% endfor %}
-            </div><br>
+            <!-- show reply comments -->
+            {% for reply in comment.rcomment.all %}
+                <p class="bg-primary text-white p-3 m-5">{{reply.user}} <br>{{ reply.body }} </p>
+            {% endfor %}
+        </div><br>
 
-        {% empty %}
-            <p>This post has no comments</p>
-        {% endfor %}
+    {% empty %}
+        <p>This post has no comments</p>
+    {% endfor %}
 
 {% endblock %}

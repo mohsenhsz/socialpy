@@ -21,6 +21,9 @@ class AddCommentForm(forms.ModelForm):
         widgets = {
             'body': forms.Textarea(attrs={'class':'form-control'})
         }
+        labels = {
+            'body': ('Leave a comment'),
+        }
         error_messages = {
             'body':{
                 'required':'this field is required'
