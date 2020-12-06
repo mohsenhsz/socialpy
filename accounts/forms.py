@@ -65,7 +65,7 @@ class EditProfileForm(forms.ModelForm):
         }
 
 
-class PhoneLoginForm(forms.Form):
+class GetPhoneNumberForm(forms.Form):
     phone = forms.IntegerField()
 
     def clean_phone(self):
@@ -76,3 +76,7 @@ class PhoneLoginForm(forms.Form):
 
 class VerifyPhoneForm(forms.Form):
     code = forms.IntegerField()
+
+
+class ResetPasswordConfirmForm(forms.Form):
+    password = forms.CharField(widget=forms.PasswordInput(attrs={'class':'form-control'}))

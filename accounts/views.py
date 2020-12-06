@@ -1,6 +1,7 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.models import User
-from .forms import UserLoginForm, UserRegisterationForm, EditProfileForm, PhoneLoginForm, VerifyPhoneForm
+from .forms import (UserLoginForm, UserRegisterationForm, EditProfileForm, GetPhoneNumberForm,
+                    VerifyPhoneForm, ResetPasswordConfirmForm)
 from django.contrib.auth import authenticate, login, logout
 from django.contrib import messages
 from core.models import Post
@@ -115,7 +116,7 @@ def Unfollow(request):
 
 def PhoneLogin(request):
     if request.method == "POST":
-        form = PhoneLoginForm(request.POST)
+        form = GetPhoneNumberForm(request.POST)
         if form.is_valid():
             global phone, token
             phone = f"0{form.cleaned_data['phone']}"
@@ -127,7 +128,7 @@ def PhoneLogin(request):
             api.sms_send(params)
             return redirect('verify_phone')
     else:
-        form = PhoneLoginForm()
+        form = GetPhoneNumberForm()
     return render(request, 'accounts/phone_login.html', {'form':form})
 
 
@@ -146,3 +147,53 @@ def VerifyPhone(request):
     else:
         form = VerifyPhoneForm()
     return render(request, 'accounts/verify_phone.html', {'form':form})
+
+
+def ResetPassword(request):
+    if request.method == "POST":
+        form = GetPhoneNumberForm(request.POST)
+        if form.is_valid():
+            global phone, token
+            phone = f"0{form.cleaned_data['phone']}"
+            profile = get_object_or_404(Profile, mobile=phone)
+            user = User.objects.filter(profile__id=profile.id)
+            token = randint(1000,9999)
+            api = KavenegarAPI('55334B346B7049394D4C4B742F4348616733656D5165645A6669747A344B734478707257694977326763493D')
+            params = { 'sender' : '1000596446', 'receptor': phone, 'message': token }
+            api.sms_send(params)
+            return redirect('reset_password_confirm')
+    else:
+        form = GetPhoneNumberForm()
+    return render(request, 'accounts/reset_password.html', {'form':form})
+
+
+def ResetPasswordConfirm(request):
+    if request.method == 'POST':
+        form = VerifyPhoneForm(request.POST)
+        if form.is_valid():
+            if token == form.cleaned_data['code']:
+                return redirect('reset_password_done')
+            else:
+                messages.error(request, 'Your code is wrong!', 'Warning')
+    else:
+        form = VerifyPhoneForm()
+    return render(request, 'accounts/reset_password.html', {'form':form})
+
+
+def ResetPasswordDone(request):
+    if request.method == 'POST':
+        form = ResetPasswordConfirmForm(request.POST)
+        if form.is_valid():
+            profile = get_object_or_404(Profile, mobile=phone)
+            user = get_object_or_404(User, profile__id=profile.id)
+            password = form.cleaned_data['password']
+            user.set_password(password)
+            user.save()
+            return redirect('reset_password_complete')
+    else:
+        form = ResetPasswordConfirmForm()
+    return render(request, 'accounts/reset_password_confirm.html', {'form':form})
+
+
+def ResetPasswordComplete(request):
+    return render(request, 'accounts/reset_password_complete.html')

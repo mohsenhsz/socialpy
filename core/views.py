@@ -109,7 +109,7 @@ def LikePost(request, post_id):
     return redirect('post_details', post.id, post.publish_date.year, post.publish_date.month,
                         post.publish_date.day, post.slug)
 
-
+@login_required
 def DislikePost(request, post_id):
     post = get_object_or_404(Post, pk=post_id)
     like = Vote.objects.get(user=request.user, post=post)
